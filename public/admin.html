@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>砸金蛋管理后台</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <!-- 登录页面 -->
+  <div class="login-container" id="loginPage">
+    <div class="login-box">
+      <h1>🔐 管理后台登录</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>密码</label>
+          <input type="password" id="password" placeholder="请输入管理员密码" required>
+        </div>
+        <button type="submit" class="btn-primary">登录</button>
+        <p class="error" id="loginError"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- 管理页面 -->
+  <div class="admin-container" id="adminPage" style="display: none;">
+    <header class="admin-header">
+      <h1>🎊 砸金蛋管理后台</h1>
+      <button class="btn-logout" id="logoutBtn">退出登录</button>
+    </header>
+
+    <div class="admin-content">
+      <!-- 统计卡片 -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-info">
+            <div class="stat-label">总抽奖次数</div>
+            <div class="stat-value" id="totalDraws">0</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎁</div>
+          <div class="stat-info">
+            <div class="stat-label">剩余奖品库存</div>
+            <div class="stat-value" id="totalStock">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 金蛋配置 -->
+      <section class="section">
+        <h2>🥚 金蛋配置</h2>
+        <div class="config-grid">
+          <div class="form-group">
+            <label>金蛋数量</label>
+            <select id="eggCount">
+              <option value="6">6个金蛋</option>
+              <option value="9">9个金蛋</option>
+              <option value="12">12个金蛋</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>金蛋图片URL</label>
+            <input type="text" id="eggImage" placeholder="/images/egg.png">
+            <input type="file" id="eggImageFile" accept="image/*" style="margin-top: 5px;">
+          </div>
+          <div class="form-group">
+            <label>破碎金蛋图片URL</label>
+            <input type="text" id="eggSmashedImage" placeholder="/images/egg-smashed.png">
+            <input type="file" id="eggSmashedImageFile" accept="image/*" style="margin-top: 5px;">
+          </div>
+          <div class="form-group">
+            <label>碎裂效果</label>
+            <select id="eggSmashEffect">
+              <option value="fade">淡出消失</option>
+              <option value="image">切换破碎图片</option>
+            </select>
+          </div>
+        </div>
+        <div class="preview-section">
+          <h3>预览</h3>
+          <div class="preview-box">
+            <div class="preview-item">
+              <span class="preview-label">完整金蛋</span>
+              <img id="previewEggImage" src="https://via.placeholder.com/150x200/ffd700/ffffff?text=金蛋" alt="金蛋预览" class="preview-img">
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">破碎金蛋</span>
+              <img id="previewSmashedImage" src="https://via.placeholder.com/150x200/d3d3d3/666666?text=破碎" alt="破碎金蛋预览" class="preview-img">
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary" id="saveConfigBtn">保存配置</button>
+      </section>
+
+      <!-- 奖品管理 -->
+      <section class="section">
+        <h2>🎁 奖品管理</h2>
+        <button class="btn-success" id="addPrizeBtn">+ 添加奖品</button>
+        <div class="prize-list" id="prizeList">
+          <p class="loading">加载中...</p>
+        </div>
+      </section>
+
+      <!-- 音效管理 -->
+      <section class="section">
+        <h2>🔊 音效管理</h2>
+        <button class="btn-success" id="addSoundBtn">+ 添加音效</button>
+        <div class="sound-list" id="soundList">
+          <p class="loading">加载中...</p>
+        </div>
+      </section>
+
+      <!-- 中奖记录 -->
+      <section class="section">
+        <h2>📋 中奖记录</h2>
+        <div class="records-table">
+          <table>
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>奖品</th>
+              </tr>
+            </thead>
+            <tbody id="recordsBody">
+              <tr><td colspan="2" class="loading">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 奖品编辑弹窗 -->
+  <div class="modal" id="prizeModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">添加奖品</h2>
+        <button class="modal-close" id="prizeModalClose">&times;</button>
+      </div>
+      <form id="prizeForm" class="modal-body">
+        <input type="hidden" id="prizeId">
+        <div class="form-group">
+          <label>奖品名称</label>
+          <input type="text" id="prizeName" placeholder="例如：iPhone 15" required>
+        </div>
+        <div class="form-group">
+          <label>奖品图片URL（可选）</label>
+          <input type="text" id="prizeImage" placeholder="https://example.com/image.png">
+        </div>
+        <div class="form-group">
+          <label>库存数量</label>
+          <input type="number" id="prizeStock" min="0" value="1" required>
+        </div>
+        <div class="form-group">
+          <label>中奖概率 (%)</label>
+          <input type="number" id="prizeProbability" min="0" max="100" step="0.1" value="1" required>
+          <small>设置该奖品被抽中的概率百分比（0-100）</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="prizeModalCancel">取消</button>
+          <button type="submit" class="btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 音效编辑弹窗 -->
+  <div class="modal" id="soundModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="soundModalTitle">添加音效</h2>
+        <button class="modal-close" id="soundModalClose">&times;</button>
+      </div>
+      <form id="soundForm" class="modal-body">
+        <input type="hidden" id="soundId">
+        <div class="form-group">
+          <label>音效类型</label>
+          <select id="soundType" required>
+            <option value="hit">敲击音效</option>
+            <option value="win">中奖音效</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>音效名称</label>
+          <input type="text" id="soundName" placeholder="例如：默认敲击音效" required>
+        </div>
+        <div class="form-group">
+          <label>音效URL</label>
+          <input type="text" id="soundUrl" placeholder="/audio/hit.mp3 或 https://example.com/sound.mp3" required>
+        </div>
+        <div class="sound-preview">
+          <button type="button" class="btn-secondary" id="previewSoundBtn">🔊 试听</button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="soundModalCancel">取消</button>
+          <button type="submit" class="btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,444 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* ==================== 侧边栏样式 ==================== */
+.sidebar {
+  width: 280px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #764ba2;
+}
+
+.prize-pool {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.prize-item {
+  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 12px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.prize-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.prize-item.out-of-stock {
+  background: linear-gradient(135deg, #b2bec3 0%, #636e72 100%);
+  opacity: 0.7;
+}
+
+.prize-item.low-stock {
+  background: linear-gradient(135deg, #fab1a0 0%, #e17055 100%);
+}
+
+.prize-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2d3436;
+  margin-bottom: 5px;
+}
+
+.prize-item.out-of-stock .prize-name {
+  color: #dfe6e9;
+}
+
+.prize-stock {
+  font-size: 14px;
+  color: #636e72;
+}
+
+.prize-item.out-of-stock .prize-stock {
+  color: #dfe6e9;
+}
+
+.stock-status {
+  float: right;
+  font-weight: bold;
+}
+
+.stock-status.empty {
+  color: #dfe6e9;
+}
+
+.stock-status.low {
+  color: #d63031;
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.refresh-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.refresh-btn:active {
+  transform: scale(0.98);
+}
+
+.refresh-btn span {
+  font-size: 20px;
+}
+
+.loading {
+  text-align: center;
+  color: #636e72;
+  padding: 20px;
+}
+
+/* ==================== 主区域样式 ==================== */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: 48px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.eggs-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  padding: 20px;
+  max-width: 800px;
+}
+
+/* ==================== 金蛋样式 ==================== */
+.egg {
+  width: 160px;
+  height: 200px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  /* 金蛋呼吸动画 */
+  animation: eggBreathe 2.5s ease-in-out infinite;
+}
+
+/* 呼吸动画 - 缓慢放大缩小 */
+@keyframes eggBreathe {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.03) rotate(1deg);
+  }
+  50% {
+    transform: scale(1.02) rotate(0deg);
+  }
+  75% {
+    transform: scale(1.03) rotate(-1deg);
+  }
+}
+
+/* 额外的扭动动画 */
+@keyframes eggWiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(2deg);
+  }
+  75% {
+    transform: rotate(-2deg);
+  }
+}
+
+.egg:hover {
+  transform: scale(1.15) translateY(-10px);
+  animation: none; /* 悬停时停止呼吸动画 */
+}
+
+.egg:hover .egg-image {
+  filter: drop-shadow(0 10px 25px rgba(218, 165, 32, 0.6));
+}
+
+.egg.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  animation: none;
+}
+
+/* 金蛋图片样式 */
+.egg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: filter 0.3s ease;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 破碎的金蛋图片 */
+.egg-image.egg-smashed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+/* 已砸碎状态 */
+.egg.smashed .egg-image.egg-intact {
+  display: none;
+}
+
+.egg.smashed .egg-image.egg-smashed {
+  opacity: 1;
+}
+
+.egg.smashed {
+  animation: none;
+  cursor: default;
+}
+
+/* 手掌光标提示 */
+.hammer-hint {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 52px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  animation: handWave 0.8s ease-in-out infinite;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes handWave {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0) rotate(-15deg);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-5px) rotate(15deg);
+  }
+}
+
+.egg:hover .hammer-hint {
+  opacity: 1;
+  top: -55px;
+}
+
+.egg.smashed .hammer-hint {
+  display: none;
+}
+
+/* ==================== 提示文字 ==================== */
+.hint {
+  font-size: 20px;
+  color: white;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  margin-top: 30px;
+  text-align: center;
+}
+
+/* ==================== 弹窗样式 ==================== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 30px;
+  padding: 40px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  animation: modalPop 0.5s ease-out;
+}
+
+@keyframes modalPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.trophy-icon,
+.sad-icon {
+  font-size: 80px;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.modal h2 {
+  font-size: 32px;
+  color: #764ba2;
+}
+
+.prize-name {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2d3436;
+}
+
+.prize-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 15px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+  margin: 10px 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.modal-close {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 15px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.modal-close:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ==================== 响应式设计 ==================== */
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-height: 300px;
+  }
+
+  .eggs-container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .egg {
+    width: 130px;
+    height: 160px;
+  }
+
+  .hammer-hint {
+    font-size: 42px;
+    top: -38px;
+  }
+}
+
+@media (max-width: 640px) {
+  .eggs-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .egg {
+    width: 110px;
+    height: 140px;
+  }
+
+  .hammer-hint {
+    font-size: 36px;
+    top: -32px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+}

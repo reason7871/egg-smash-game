@@ -1,0 +1,51 @@
+# 依赖
+node_modules/
+package-lock.json
+
+# 数据库文件
+database/*.db
+database/*.db-shm
+database/*.db-wal
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 上传文件
+public/uploads/*
+!public/uploads/.gitkeep
+
+# 日志
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 操作系统
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 部署包
+砸金蛋-部署包.zip
+deploy-temp/
+部署脚本/
+
+# Vercel
+.vercel/
+
+# 构建输出
+dist/
+build/
