@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "砸金蛋抽奖游戏",
   "main": "server.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
