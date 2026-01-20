@@ -12,9 +12,7 @@ const app = express();
 // 中间件
 app.use(cors());
 app.use(express.json());
-
-// 静态文件服务（用于上传的图片）
-app.use('/uploads', express.static('public/uploads'));
+app.use(express.urlencoded({ extended: true }));
 
 // 导入所有路由
 const setupRoutes = require('./routes');
@@ -24,7 +22,7 @@ let isInitialized = false;
 
 async function initializeApp() {
   if (isInitialized) return;
-  await setupRoutes(app);
+  setupRoutes(app);
   isInitialized = true;
 }
 
@@ -33,13 +31,3 @@ module.exports = async (req, res) => {
   await initializeApp();
   return app(req, res);
 };
-
-// 本地开发支持（使用 vercel dev）
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  initializeApp().then(() => {
-    app.listen(PORT, () => {
-      console.log(`开发服务器运行在 http://localhost:${PORT}`);
-    });
-  });
-}
