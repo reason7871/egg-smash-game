@@ -20,7 +20,12 @@ let SQL;
 async function initDatabase() {
   if (db) return db;
 
-  SQL = await initSqlJs();
+  // 从 CDN 加载 WASM 文件
+  SQL = await initSqlJs({
+    locateFile: (filename) => {
+      return `https://sql.js.org/dist/${filename}`;
+    }
+  });
 
   // 尝试加载现有数据库
   if (fs.existsSync(dbPath)) {
