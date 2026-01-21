@@ -1,6 +1,7 @@
 /**
  * Vercel Serverless Function 入口
  * 将 Express 应用适配为 Vercel API Routes
+ * 使用 sql.js (纯 JavaScript SQLite 实现)
  */
 
 const express = require('express');
@@ -22,7 +23,7 @@ let isInitialized = false;
 
 async function initializeApp() {
   if (isInitialized) return;
-  setupRoutes(app);
+  await setupRoutes(app);
   isInitialized = true;
 }
 
