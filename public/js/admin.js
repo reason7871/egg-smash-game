@@ -172,7 +172,7 @@ eggImageFileInput.addEventListener('change', async (e) => {
   eggImageInput.value = '上传中...';
 
   const formData = new FormData();
-  formData.append('image', file);
+  formData.append('file', file);
 
   try {
     const res = await fetch(`${API_BASE}/api/admin/upload/egg-image`, {
@@ -208,7 +208,7 @@ eggSmashedImageFileInput.addEventListener('change', async (e) => {
   eggSmashedImageInput.value = '上传中...';
 
   const formData = new FormData();
-  formData.append('image', file);
+  formData.append('file', file);
 
   try {
     const res = await fetch(`${API_BASE}/api/admin/upload/smashed-image`, {

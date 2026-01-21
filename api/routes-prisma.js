@@ -476,21 +476,119 @@ module.exports = async function(app) {
 
   // ==================== 文件上传接口 ====================
 
-  // 上传金蛋图片（Vercel 不支持本地文件上传，使用 URL）
-  app.post('/api/admin/upload/egg-image', (req, res) => {
-    const { url } = req.body;
-    if (!url) {
-      return res.json({ success: false, message: '请提供图片 URL' });
+  // 上传金蛋图片到 Vercel Blob Storage
+  app.post('/api/admin/upload/egg-image', async (req, res) => {
+    try {
+      // 检查是否有 BLOB_READ_WRITE_TOKEN 环境变量
+      if (!process.env.BLOB_READ_WRITE_TOKEN) {
+        // 如果没有 Blob token，返回 URL 输入模式
+        const { url } = req.body;
+        if (!url) {
+          return res.json({ success: false, message: '请提供图片 URL' });
+        }
+        return res.json({ success: true, url });
+      }
+
+      // 使用 Vercel Blob Storage 上传文件
+      const { put } = await import('@vercel/blob');
+
+      // 检查是否有文件上传（multipart/form-data）
+      if (!req.is('multipart/form-data')) {
+        return res.json({ success: false, message: '请上传文件' });
+      }
+
+      // 使用 multer 处理文件上传
+      const multer = require('multer');
+      const storage = multer.memoryStorage();
+      const upload = multer({ storage });
+
+      // 手动处理 multipart 数据
+      upload.single('file')(req, res, async (err) => {
+        if (err) {
+          return res.json({ success: false, message: '文件上传失败' });
+        }
+
+        if (!req.file) {
+          return res.json({ success: false, message: '请选择文件' });
+        }
+
+        try {
+          // 生成唯一文件名
+          const filename = `egg-${Date.now()}-${req.file.originalname}`;
+
+          // 上传到 Vercel Blob Storage
+          const blob = await put(filename, req.file.buffer, {
+            access: 'public',
+            contentType: req.file.mimetype
+          });
+
+          res.json({ success: true, url: blob.url });
+        } catch (error) {
+          console.error('Blob 上传失败:', error);
+          res.json({ success: false, message: '上传失败' });
+        }
+      });
+    } catch (error) {
+      console.error('上传处理失败:', error);
+      res.json({ success: false, message: '上传失败' });
     }
-    res.json({ success: true, url });
   });
 
-  // 上传破碎金蛋图片（Vercel 不支持本地文件上传，使用 URL）
-  app.post('/api/admin/upload/smashed-image', (req, res) => {
-    const { url } = req.body;
-    if (!url) {
-      return res.json({ success: false, message: '请提供图片 URL' });
+  // 上传破碎金蛋图片到 Vercel Blob Storage
+  app.post('/api/admin/upload/smashed-image', async (req, res) => {
+    try {
+      // 检查是否有 BLOB_READ_WRITE_TOKEN 环境变量
+      if (!process.env.BLOB_READ_WRITE_TOKEN) {
+        // 如果没有 Blob token，返回 URL 输入模式
+        const { url } = req.body;
+        if (!url) {
+          return res.json({ success: false, message: '请提供图片 URL' });
+        }
+        return res.json({ success: true, url });
+      }
+
+      // 使用 Vercel Blob Storage 上传文件
+      const { put } = await import('@vercel/blob');
+
+      // 检查是否有文件上传（multipart/form-data）
+      if (!req.is('multipart/form-data')) {
+        return res.json({ success: false, message: '请上传文件' });
+      }
+
+      // 使用 multer 处理文件上传
+      const multer = require('multer');
+      const storage = multer.memoryStorage();
+      const upload = multer({ storage });
+
+      // 手动处理 multipart 数据
+      upload.single('file')(req, res, async (err) => {
+        if (err) {
+          return res.json({ success: false, message: '文件上传失败' });
+        }
+
+        if (!req.file) {
+          return res.json({ success: false, message: '请选择文件' });
+        }
+
+        try {
+          // 生成唯一文件名
+          const filename = `egg-smashed-${Date.now()}-${req.file.originalname}`;
+
+          // 上传到 Vercel Blob Storage
+          const blob = await put(filename, req.file.buffer, {
+            access: 'public',
+            contentType: req.file.mimetype
+          });
+
+          res.json({ success: true, url: blob.url });
+        } catch (error) {
+          console.error('Blob 上传失败:', error);
+          res.json({ success: false, message: '上传失败' });
+        }
+      });
+    } catch (error) {
+      console.error('上传处理失败:', error);
+      res.json({ success: false, message: '上传失败' });
     }
-    res.json({ success: true, url });
   });
 };
