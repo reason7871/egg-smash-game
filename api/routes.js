@@ -20,12 +20,14 @@ let SQL;
 async function initDatabase() {
   if (db) return db;
 
-  // 从 CDN 加载 WASM 文件
-  SQL = await initSqlJs({
-    locateFile: (filename) => {
-      return `https://sql.js.org/dist/${filename}`;
-    }
-  });
+  // 手动获取 WASM 文件
+  const wasmUrl = 'https://sql.js.org/dist/sql-wasm.wasm';
+  const wasmResponse = await fetch(wasmUrl);
+  const wasmBuffer = await wasmResponse.arrayBuffer();
+  const wasmBinary = new Uint8Array(wasmBuffer);
+
+  // 使用 WASM 二进制数据初始化 sql.js
+  SQL = await initSqlJs({ wasmBinary });
 
   // 尝试加载现有数据库
   if (fs.existsSync(dbPath)) {
