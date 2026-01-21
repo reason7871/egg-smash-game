@@ -30,11 +30,5 @@ async function initializeApp() {
 // Vercel Serverless Function 导出
 module.exports = async (req, res) => {
   await initializeApp();
-
-  // Vercel 的 [...path].js 会去掉 /api 前缀
-  // 需要手动添加回去以便 Express 路由匹配
-  const originalUrl = req.url;
-  req.url = '/api' + originalUrl;
-
   return app(req, res);
 };
