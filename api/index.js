@@ -29,6 +29,12 @@ async function initializeApp() {
 
 // Vercel Serverless Function 导出
 module.exports = async (req, res) => {
+  // 调试信息
+  console.log('=== Request received ===');
+  console.log('URL:', req.url);
+  console.log('Method:', req.method);
+  console.log('Path:', req.path);
+
   await initializeApp();
   return app(req, res);
 };
