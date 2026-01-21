@@ -1,0 +1,47 @@
+// Prisma Schema for 砸金蛋抽奖游戏
+// 支持 PostgreSQL (Vercel Postgres) 和 SQLite (本地开发)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 奖品表
+model Prize {
+  id          Int      @id @default(autoincrement())
+  name        String
+  image       String?
+  stock       Int      @default(0)
+  probability Float    @default(1)
+  created_at  DateTime @default(now())
+  records     Record[]
+}
+
+// 配置表
+model Config {
+  key   String @id
+  value String
+}
+
+// 中奖记录表
+model Record {
+  id         Int      @id @default(autoincrement())
+  prize_id   Int?
+  prize_name String
+  created_at DateTime @default(now())
+  prize      Prize?   @relation(fields: [prize_id], references: [id])
+}
+
+// 音效表
+model SoundEffect {
+  id         Int      @id @default(autoincrement())
+  type       String
+  name       String
+  url        String
+  is_active  Int      @default(0)
+  created_at DateTime @default(now())
+}

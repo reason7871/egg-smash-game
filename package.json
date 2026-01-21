@@ -12,10 +12,13 @@
     "vercel-build": "echo 'Build complete'"
   },
   "dependencies": {
+    "@prisma/client": "^5.20.0",
     "better-sqlite3": "^12.6.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "multer": "^2.0.2",
-    "sql.js": "^1.10.3"
+    "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "prisma": "^5.20.0"
   }
 }

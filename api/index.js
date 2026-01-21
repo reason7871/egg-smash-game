@@ -1,7 +1,7 @@
 /**
  * Vercel Serverless Function 入口
  * 将 Express 应用适配为 Vercel API Routes
- * 使用 sql.js (纯 JavaScript SQLite 实现)
+ * 使用 Prisma + Vercel Postgres 实现数据持久化
  */
 
 const express = require('express');
@@ -15,8 +15,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 导入所有路由
-const setupRoutes = require('./routes');
+// 导入所有路由（使用 Prisma）
+const setupRoutes = require('./routes-prisma');
 
 // 初始化数据库和路由
 let isInitialized = false;
@@ -29,12 +29,6 @@ async function initializeApp() {
 
 // Vercel Serverless Function 导出
 module.exports = async (req, res) => {
-  // 调试信息
-  console.log('=== Request received ===');
-  console.log('URL:', req.url);
-  console.log('Method:', req.method);
-  console.log('Path:', req.path);
-
   await initializeApp();
   return app(req, res);
 };
