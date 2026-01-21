@@ -13,12 +13,16 @@ const dbPath = process.env.VERCEL
   ? path.join('/tmp', 'lottery.db')
   : path.join(__dirname, '../database', 'lottery.db');
 
-let db;
-let SQL;
+// 使用全局变量在 Vercel 环境中保持数据库连接
+global.__lotteryDB = global.__lotteryDB || null;
+global.__lotterySQL = global.__lotterySQL || null;
 
 // 初始化数据库
 async function initDatabase() {
-  if (db) return db;
+  // 如果已有数据库实例，直接返回
+  if (global.__lotteryDB) {
+    return global.__lotteryDB;
+  }
 
   // 手动获取 WASM 文件
   const wasmUrl = 'https://sql.js.org/dist/sql-wasm.wasm';
@@ -27,22 +31,30 @@ async function initDatabase() {
   const wasmBinary = new Uint8Array(wasmBuffer);
 
   // 使用 WASM 二进制数据初始化 sql.js
-  SQL = await initSqlJs({ wasmBinary });
+  global.__lotterySQL = await initSqlJs({ wasmBinary });
 
   // 尝试加载现有数据库
   if (fs.existsSync(dbPath)) {
     const buffer = fs.readFileSync(dbPath);
-    db = new SQL.Database(buffer);
+    global.__lotteryDB = new global.__lotterySQL.Database(buffer);
   } else {
-    db = new SQL.Database();
+    global.__lotteryDB = new global.__lotterySQL.Database();
   }
 
   setupDatabase();
-  return db;
+  return global.__lotteryDB;
+}
+
+// 获取数据库实例的辅助函数
+function getDB() {
+  return global.__lotteryDB;
 }
 
 // 保存数据库到文件
 function saveDatabase() {
+  const db = getDB();
+  if (!db) return;
+
   if (process.env.VERCEL) {
     const data = db.export();
     const buffer = Buffer.from(data);
@@ -61,6 +73,8 @@ function saveDatabase() {
 
 // 数据库表创建和初始化
 function setupDatabase() {
+  const db = getDB();
+
   db.run(`
     CREATE TABLE IF NOT EXISTS prizes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -100,7 +114,9 @@ function setupDatabase() {
   `);
 
   // 检查是否需要初始化默认数据
-  const configCount = db.exec("SELECT COUNT(*) as count FROM config")[0]?.values[0][0];
+  const configResult = db.exec("SELECT COUNT(*) as count FROM config");
+  const configCount = configResult[0]?.values[0][0];
+
   if (!configCount || configCount === 0) {
     // 初始化默认配置
     db.run("INSERT INTO config (key, value) VALUES ('egg_count', '6')");
@@ -138,6 +154,7 @@ function queryGet(db, sql, params = []) {
 
 // 执行抽奖的辅助函数
 function drawPrize(prize) {
+  const db = getDB();
   db.run('UPDATE prizes SET stock = stock - 1 WHERE id = ?', [prize.id]);
   db.run('INSERT INTO records (prize_id, prize_name) VALUES (?, ?)', [prize.id, prize.name]);
   saveDatabase();
